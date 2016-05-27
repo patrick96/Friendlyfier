@@ -29,7 +29,7 @@ ext.mc_version = "1.9"
 ext.forge_version = "12.16.1.1907"
 version = config.version + "." + config.build
 group= "patrick96.friendlyfier" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "friendlyfier-" + mc_version
+archivesBaseName = "friendlyfier-" + mc_version + "-"
 
 def saveVersion() {
     configFile.withWriter {
