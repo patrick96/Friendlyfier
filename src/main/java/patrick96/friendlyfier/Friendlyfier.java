@@ -30,7 +30,7 @@ public class Friendlyfier
         MinecraftForge.EVENT_BUS.register(this);
         GameRegistry.register(itemFriendlyfier.setRegistryName(new ResourceLocation(MODID, "friendlyfier")));
 
-        GameRegistry.addRecipe(new ItemStack(itemFriendlyfier), " AB", " CA", " D ",
+        GameRegistry.addRecipe(new ItemStack(itemFriendlyfier, 2), " AB", " CA", "D  ",
                 'A', Items.gold_nugget,
                 'B', Items.lead,
                 'C', Items.stick,
