@@ -5,7 +5,6 @@ import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.ai.*;
 import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.common.FMLLog;
@@ -13,7 +12,6 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class Utils {
@@ -33,12 +31,16 @@ public class Utils {
         FMLLog.log(Friendlyfier.MODID, l, msg);
     }
 
+    public static boolean canFriendlyfy(EntityCreature entity, boolean onSpawn) {
+        return entity.isNonBoss() && onSpawn == entity.getEntityData().getBoolean("friendlyfied");
+    }
+
     public static boolean friendlyfy(EntityCreature entity) {
         return friendlyfy(entity, false);
     }
 
     public static boolean friendlyfy(EntityCreature entity, boolean onSpawn) {
-        if(entity.worldObj.isRemote || !entity.isNonBoss() || onSpawn != entity.getEntityData().getBoolean("friendlyfied")) {
+        if(entity.worldObj.isRemote || !canFriendlyfy(entity, onSpawn)) {
             return false;
         }
 

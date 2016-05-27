@@ -9,24 +9,28 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 
+import static patrick96.friendlyfier.Friendlyfier.MODID;
+
 public class ItemFriendlyfier extends Item {
 
     public ItemFriendlyfier() {
         super();
+        setFull3D();
         setCreativeTab(CreativeTabs.tabTools);
-        setUnlocalizedName(Friendlyfier.MODID + ".friendlyfier");
+        setUnlocalizedName("friendlyfier");
+        setRegistryName(MODID, "friendlyfier");
     }
 
     @Override
     public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer playerIn, EntityLivingBase target, EnumHand hand) {
         if(target instanceof EntityCreature && target.isCreatureType(EnumCreatureType.MONSTER, false)) {
+            playerIn.swingArm(hand);
+
             if(Utils.friendlyfy((EntityCreature) target)) {
                 playerIn.addChatMessage(target.getDisplayName().appendText("(" + Utils.getOriginalName(target) + ") is now friendly!"));
-
                 if(!playerIn.isCreative()) {
                     stack.stackSize--;
                 }
-
             }
         }
 
