@@ -7,7 +7,7 @@ import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.ChatComponentText;
 
 import static patrick96.friendlyfier.Friendlyfier.MODID;
 
@@ -17,23 +17,35 @@ public class ItemFriendlyfier extends Item {
         super();
         setFull3D();
         setCreativeTab(CreativeTabs.tabTools);
-        setUnlocalizedName("friendlyfier");
-        setRegistryName(MODID, "friendlyfier");
+        setUnlocalizedName(MODID + ".friendlyfier");
+        setTextureName(MODID + ":friendlyfier");
     }
 
     @Override
-    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer playerIn, EntityLivingBase target, EnumHand hand) {
-        if(target instanceof EntityCreature && target.isCreatureType(EnumCreatureType.MONSTER, false)) {
-            playerIn.swingArm(hand);
-
+    public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase target) {
+        if(target instanceof EntityCreature && target.isCreatureType(EnumCreatureType.monster, false)) {
             if(Utils.friendlyfy((EntityCreature) target)) {
-                playerIn.addChatMessage(target.getDisplayName().appendText("(" + Utils.getOriginalName(target) + ") is now friendly!"));
-                if(!playerIn.isCreative()) {
+                player.swingItem();
+                // TODO config message with parameters for name, and nametag, health,
+
+                EntityCreature entity = (EntityCreature) target;
+                String name;
+
+                if(entity.hasCustomNameTag()) {
+                    name = entity.getCustomNameTag() + " (" + Utils.getOriginalName(entity) + ")";
+                }
+                else {
+                    name = Utils.getOriginalName(entity);
+                }
+
+                player.addChatMessage(new ChatComponentText(name + " is now friendly!"));
+                if(!player.capabilities.isCreativeMode) {
                     stack.stackSize--;
                 }
             }
         }
 
-        return super.itemInteractionForEntity(stack, playerIn, target, hand);
+        return super.itemInteractionForEntity(stack, player, target);
     }
+
 }

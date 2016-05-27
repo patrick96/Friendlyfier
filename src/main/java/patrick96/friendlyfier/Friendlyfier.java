@@ -1,5 +1,12 @@
 package patrick96.friendlyfier;
 
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EnumCreatureType;
@@ -8,14 +15,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.apache.logging.log4j.Level;
 
 @Mod(modid = Friendlyfier.MODID, version = Friendlyfier.VERSION)
@@ -29,12 +28,12 @@ public class Friendlyfier
 
     public final static Item itemFriendlyfier = new ItemFriendlyfier();
 
-    @EventHandler
+    @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         proxy.preInit(event);
 
         MinecraftForge.EVENT_BUS.register(this);
-        GameRegistry.register(itemFriendlyfier);
+        GameRegistry.registerItem(itemFriendlyfier, "friendlyfier");
 
         GameRegistry.addRecipe(new ItemStack(itemFriendlyfier, 2), " AB", " CA", "D  ",
                 'A', Items.gold_nugget,
@@ -44,24 +43,33 @@ public class Friendlyfier
 
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
         proxy.init(event);
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
     }
 
     @SubscribeEvent
     public void onJoin(EntityJoinWorldEvent event) {
-
-        Entity entity = event.getEntity();
-        if(entity instanceof EntityCreature && entity.isCreatureType(EnumCreatureType.MONSTER, false)) {
+        Entity entity = event.entity;
+        if(entity instanceof EntityCreature && entity.isCreatureType(EnumCreatureType.monster, false)) {
             if(Utils.friendlyfy(((EntityCreature) entity), true)) {
-                Utils.log(Level.INFO, "Friendlyfied " + entity.getName() + "(" + Utils.getOriginalName(entity) + ") on world join");
+
+                EntityCreature creature = (EntityCreature) entity;
+                String name;
+
+                if(creature.hasCustomNameTag()) {
+                    name = creature.getCustomNameTag() + " (" + Utils.getOriginalName(creature) + ")";
+                }
+                else {
+                    name = Utils.getOriginalName(creature);
+                }
+                Utils.log(Level.INFO, "Friendlyfied " + name + " on world join");
             }
         }
     }
