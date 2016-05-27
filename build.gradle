@@ -1,0 +1,77 @@
+
+// For those who want the bleeding edge
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+    }
+}
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+sourceCompatibility = 7
+targetCompatibility = 7
+
+ext.configFile = file "version.properties"
+
+configFile.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
+}
+
+ext.mc_version = "1.9"
+ext.forge_version = "12.16.1.1907"
+version = config.version + "." + config.build
+group= "patrick96.friendlyfier" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "friendlyfier"
+
+def saveVersion() {
+    configFile.withWriter {
+        config.toProperties().store(it, "")
+    }
+}
+
+tasks.build.dependsOn 'bumpBuild'
+
+task bumpBuild() << {
+    config.build = Integer.parseInt(config.build) + 1
+    saveVersion()
+}
+
+minecraft {
+    version = "${mc_version}-${forge_version}"
+    runDir = "minecraft"
+
+    // the mappings can be changed at any time, and must be in the following format.
+    // snapshot_YYYYMMDD   snapshot are built nightly.
+    // stable_#            stables are built at the discretion of the MCP team.
+    // Use non-default mappings at your own risk. they may not allways work.
+    // simply re-run your setup task after changing the mappings to update your workspace.
+    mappings = "snapshot_20160312"
+
+    replaceIn "Friendlyfier.java"
+    replace "@VERSION@", project.version
+}
+
+cleanProcessResources.execute()
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}

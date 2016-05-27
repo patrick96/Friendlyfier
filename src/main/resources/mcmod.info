@@ -1,0 +1,15 @@
+[
+{
+  "modid": "friendlyfier",
+  "name": "Friendlyfier",
+  "description": "Make your hostiles friendly.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["patrick96"],
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
