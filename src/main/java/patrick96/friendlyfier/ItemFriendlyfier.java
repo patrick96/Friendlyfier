@@ -1,13 +1,16 @@
 package patrick96.friendlyfier;
 
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityCreature;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.IChatComponent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static patrick96.friendlyfier.Friendlyfier.MODID;
 
@@ -23,22 +26,39 @@ public class ItemFriendlyfier extends Item {
 
     @Override
     public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer player, EntityLivingBase target) {
-        if(target instanceof EntityCreature && target.isCreatureType(EnumCreatureType.monster, false)) {
-            if(Utils.friendlyfy((EntityCreature) target)) {
+
+        if(target instanceof EntityLiving) {
+            EntityLiving entity = (EntityLiving) target;
+
+            if(Utils.canFriendlyfy(entity, false)) {
                 player.swingItem();
-                // TODO config message with parameters for name, and nametag, health,
+            }
 
-                EntityCreature entity = (EntityCreature) target;
-                String name;
+            if(Utils.friendlyfy((EntityLiving) target)) {
 
-                if(entity.hasCustomNameTag()) {
-                    name = entity.getCustomNameTag() + " (" + Utils.getOriginalName(entity) + ")";
+                IChatComponent msg = Utils.generateSuccessMessage(entity, player);
+
+                List<EntityPlayer> players = new ArrayList<>();
+
+                if(ConfigHandler.dimensionalSuccessMessage.getBoolean()) {
+                    players.addAll(player.worldObj.playerEntities);
+                }
+                else if(ConfigHandler.radiusSuccessMessage.getInt() > 0) {
+                    int radius = ConfigHandler.radiusSuccessMessage.getInt();
+                    players.addAll(player.worldObj.getEntitiesWithinAABB(EntityPlayer.class
+                            , AxisAlignedBB.getBoundingBox(player.posX, player.posY, player.posZ, player.posX, player.posY, player.posZ)
+                                    .expand(radius, radius, radius)));
                 }
                 else {
-                    name = Utils.getOriginalName(entity);
+                    players.add(player);
                 }
 
-                player.addChatMessage(new ChatComponentText(name + " is now friendly!"));
+                for(EntityPlayer pl : players) {
+                    if(pl != null) {
+                        pl.addChatComponentMessage(msg);
+                    }
+                }
+
                 if(!player.capabilities.isCreativeMode) {
                     stack.stackSize--;
                 }

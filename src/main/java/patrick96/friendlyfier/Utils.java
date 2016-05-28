@@ -2,23 +2,46 @@ package patrick96.friendlyfier;
 
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.ReflectionHelper;
-import net.minecraft.entity.DataWatcher;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.EntityList;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.*;
-import net.minecraft.entity.boss.EntityDragon;
-import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntityPigZombie;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.StatCollector;
 import org.apache.logging.log4j.Level;
 
 import java.lang.reflect.Field;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Utils {
+
+    public static String prettyPrintNumber(double num) {
+        return prettyPrintNumber(num, 0, true);
+    }
+
+    /**
+     * Pretty prints numbers
+     *
+     * @param num           the number to format
+     * @param decimalPlaces the amount of decimal places to be shown
+     * @return the formated number as a String
+     */
+    public static String prettyPrintNumber(double num, int decimalPlaces, boolean trailingZeros) {
+        StringBuilder format = new StringBuilder(",##0");
+        if(decimalPlaces > 0) {
+            format.append(".");
+            for(int i = 0; i < decimalPlaces; i++) {
+                format.append(trailingZeros ? "0" : "#");
+            }
+        }
+        DecimalFormat form = new DecimalFormat(format.toString());
+        return form.format(num);
+    }
 
     public static String getOriginalName(Entity e) {
         String s = EntityList.getEntityString(e);
@@ -31,23 +54,84 @@ public class Utils {
         return StatCollector.translateToLocal("entity." + s + ".name");
     }
 
+    public static IChatComponent generateSuccessMessage(EntityLiving entity, EntityPlayer player) {
+        ChatComponentText msg = new ChatComponentText("");
+
+        String configMsg = ConfigHandler.successMessage.getString();
+
+        // Loop over every character to avoid replacing stuff inside entity name using the @ sign
+        for(int i = 0; i < configMsg.length(); i++) {
+            char character = configMsg.charAt(i);
+
+            if(character == '@') {
+                IChatComponent toAdd = null;
+                switch(configMsg.charAt(i + 1)) {
+                    case 'n':
+                            toAdd = new ChatComponentText(Utils.getOriginalName(entity));
+                        break;
+
+                    case 't':
+                            if(entity.hasCustomNameTag()) {
+                                toAdd = new ChatComponentText(entity.getCustomNameTag());
+                            }
+                        break;
+
+                    case 'o':
+                            toAdd = new ChatComponentText(entity.getCommandSenderName());
+                        break;
+
+                    case 'i':
+                            toAdd = new ChatComponentText(EntityList.getEntityString(entity));
+                        break;
+
+                    case 'p':
+                            toAdd = player.func_145748_c_();
+                        break;
+
+                    case 'h':
+                            toAdd = new ChatComponentText("" + entity.getHealth());
+                        break;
+
+                    case 'f':
+                            toAdd = new ChatComponentText(prettyPrintNumber(entity.getHealth() / 2F, 1, false));
+                        break;
+
+                    default:
+                        // If no variable is found print as normal
+                        toAdd = new ChatComponentText("@" + configMsg.charAt(i + 1));
+                }
+
+                if(toAdd != null) {
+                    msg.appendSibling(toAdd);
+                }
+                i++;
+            }
+            else {
+                msg.appendText(character + "");
+            }
+
+        }
+
+        return msg;
+    }
+
     public static void log(Level l, String msg) {
         FMLLog.log(Friendlyfier.MODID, l, msg);
     }
 
-    public static boolean isBoss(Entity entity) {
-        return entity instanceof EntityWither || entity instanceof EntityDragon;
+    public static boolean couldTypeBeFriendlyfied(EntityLiving entity) {
+        return entity.isCreatureType(EnumCreatureType.monster, false)  && ConfigHandler.useWhitelist.getBoolean() == Arrays.asList(ConfigHandler.blacklist.getStringList()).contains(EntityList.getEntityString(entity));
     }
 
-    public static boolean canFriendlyfy(EntityCreature entity, boolean onSpawn) {
-        return !isBoss(entity) && onSpawn == entity.getEntityData().getBoolean("friendlyfied");
+    public static boolean canFriendlyfy(EntityLiving entity, boolean onSpawn) {
+        return couldTypeBeFriendlyfied(entity) && onSpawn == entity.getEntityData().getBoolean("friendlyfied");
     }
 
-    public static boolean friendlyfy(EntityCreature entity) {
+    public static boolean friendlyfy(EntityLiving entity) {
         return friendlyfy(entity, false);
     }
 
-    public static boolean friendlyfy(EntityCreature entity, boolean onSpawn) {
+    public static boolean friendlyfy(EntityLiving entity, boolean onSpawn) {
         if(entity.worldObj.isRemote || !canFriendlyfy(entity, onSpawn)) {
             return false;
         }
@@ -73,8 +157,7 @@ public class Utils {
             entity.targetTasks.removeTask(b);
         }
 
-        if(entity instanceof EntityCreeper) {
-            // TODO config for this
+        if(entity instanceof EntityCreeper && ConfigHandler.defuseCreeper.getBoolean()) {
             EntityCreeper creeper = (EntityCreeper) entity;
             try {
                 creeper.setCreeperState(-1);
@@ -95,7 +178,6 @@ public class Utils {
         }
 
         entity.tasks.addTask(0, new EntityAISwimming(entity));
-        entity.tasks.addTask(1, new EntityAIWander(entity, 1.0D));
         entity.tasks.addTask(2, new EntityAILookIdle(entity));
 
         try {
@@ -104,8 +186,13 @@ public class Utils {
             e.printStackTrace();
         }
 
-        entity.setTarget(null);
-        entity.setPathToEntity(null);
+        if(entity instanceof EntityCreature) {
+            EntityCreature creature = ((EntityCreature) entity);
+            entity.tasks.addTask(1, new EntityAIWander(creature, 1.0D));
+            creature.setTarget(null);
+            creature.setPathToEntity(null);
+        }
+
         entity.func_110163_bv();
 
         return true;

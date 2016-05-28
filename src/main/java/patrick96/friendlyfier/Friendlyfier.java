@@ -8,14 +8,15 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import org.apache.logging.log4j.Level;
+
+import java.io.File;
 
 @Mod(modid = Friendlyfier.MODID, version = Friendlyfier.VERSION)
 public class Friendlyfier
@@ -30,6 +31,8 @@ public class Friendlyfier
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        ConfigHandler.init(new File(event.getModConfigurationDirectory(), MODID + ".cfg"));
+
         proxy.preInit(event);
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -57,10 +60,10 @@ public class Friendlyfier
     @SubscribeEvent
     public void onJoin(EntityJoinWorldEvent event) {
         Entity entity = event.entity;
-        if(entity instanceof EntityCreature && entity.isCreatureType(EnumCreatureType.monster, false)) {
-            if(Utils.friendlyfy(((EntityCreature) entity), true)) {
+        if(entity instanceof EntityLiving) {
+            if(Utils.friendlyfy(((EntityLiving) entity), true)) {
 
-                EntityCreature creature = (EntityCreature) entity;
+                EntityLiving creature = (EntityLiving) entity;
                 String name;
 
                 if(creature.hasCustomNameTag()) {
