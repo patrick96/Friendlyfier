@@ -9,7 +9,7 @@ import static net.minecraftforge.common.config.Configuration.CATEGORY_GENERAL;
 
 public class ConfigHandler {
 
-    public static Property defuseCreeper, friendlyLimit, useWhitelist, blacklist, invulnerable, successMessage, dimensionalSuccessMessage, radiusSuccessMessage;
+    public static Property defuseCreeper, friendlyLimit, useWhitelist, blacklist, invulnerable, persistence, successMessage, dimensionalSuccessMessage, radiusSuccessMessage;
 
     public static void init(File file) {
         Configuration config = new Configuration(file, true);
@@ -50,6 +50,9 @@ public class ConfigHandler {
         invulnerable.comment = "If set to true friendlyfied mobs will become invulnerable. "
                 + "If set to false this will cause friendly Zombie Pigmen to be aggrovated when you hit them."
                 + "Friendly Pigmen will still aggrovate if you attack their friends and with this set to true you cannot kill them, you can only run. (default: true)";
+
+        persistence = config.get(CATEGORY_GENERAL, "persistence", true);
+        persistence.comment = "If set to true friendlyfied mobs will not despawn if they are too far away (default: true)";
 
         config.save();
     }

@@ -120,7 +120,7 @@ public class Utils {
     }
 
     public static boolean couldTypeBeFriendlyfied(EntityLiving entity) {
-        return entity.isCreatureType(EnumCreatureType.monster, false)  && ConfigHandler.useWhitelist.getBoolean() == Arrays.asList(ConfigHandler.blacklist.getStringList()).contains(EntityList.getEntityString(entity));
+        return entity.isCreatureType(EnumCreatureType.monster, false)  && (ConfigHandler.useWhitelist.getBoolean() == Arrays.asList(ConfigHandler.blacklist.getStringList()).contains(EntityList.getEntityString(entity)));
     }
 
     public static boolean canFriendlyfy(EntityLiving entity, boolean onSpawn) {
@@ -180,10 +180,12 @@ public class Utils {
         entity.tasks.addTask(0, new EntityAISwimming(entity));
         entity.tasks.addTask(2, new EntityAILookIdle(entity));
 
-        try {
-            ReflectionHelper.findField(Entity.class, "invulnerable", "field_83001_bt").set(entity, true);
-        } catch(IllegalAccessException e) {
-            e.printStackTrace();
+        if(ConfigHandler.invulnerable.getBoolean()) {
+            try {
+                ReflectionHelper.findField(Entity.class, "invulnerable", "field_83001_bt").set(entity, true);
+            } catch(IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
 
         if(entity instanceof EntityCreature) {
@@ -193,7 +195,9 @@ public class Utils {
             creature.setPathToEntity(null);
         }
 
-        entity.func_110163_bv();
+        if(ConfigHandler.persistence.getBoolean()) {
+            entity.func_110163_bv();
+        }
 
         return true;
     }
