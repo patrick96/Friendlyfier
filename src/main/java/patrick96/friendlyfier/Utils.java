@@ -7,6 +7,7 @@ import net.minecraft.entity.ai.*;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.StatCollector;
@@ -17,6 +18,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class Utils {
 
@@ -96,6 +98,10 @@ public class Utils {
                             toAdd = new ChatComponentText(prettyPrintNumber(entity.getHealth() / 2F, 1, false));
                         break;
 
+                    case 'u':
+                            toAdd = new ChatComponentText("" + getNumFriendlyfied(player));
+                        break;
+
                     default:
                         // If no variable is found print as normal
                         toAdd = new ChatComponentText("@" + configMsg.charAt(i + 1));
@@ -119,6 +125,32 @@ public class Utils {
         FMLLog.log(Friendlyfier.MODID, l, msg);
     }
 
+    public static UUID getFriendlyfiedPlayer(EntityLiving entity) {
+        if(entity != null && entity.getEntityData().getBoolean("friendlyfied")) {
+            return UUID.fromString(entity.getEntityData().getString("friendlyfiedPlayer"));
+        }
+
+        return null;
+    }
+
+    public static int getNumFriendlyfied(EntityPlayer player) {
+        List entities = player.worldObj.loadedEntityList;
+
+        int num = 0;
+        for(Object obj : entities) {
+            Entity e = ((Entity) obj);
+            NBTTagCompound data = e.getEntityData();
+            if(e instanceof EntityLiving
+                    && data.getBoolean("friendlyfied")
+                    && data.hasKey("friendlyfiedPlayer")
+                    && player.getPersistentID().equals(UUID.fromString(data.getString("friendlyfiedPlayer")))) {
+                num++;
+            }
+        }
+
+        return num;
+    }
+
     public static boolean couldTypeBeFriendlyfied(EntityLiving entity) {
         return entity.isCreatureType(EnumCreatureType.monster, false)  && (ConfigHandler.useWhitelist.getBoolean() == Arrays.asList(ConfigHandler.blacklist.getStringList()).contains(EntityList.getEntityString(entity)));
     }
@@ -137,7 +169,6 @@ public class Utils {
         }
 
         entity.getEntityData().setBoolean("friendlyfied", true);
-
         List<EntityAIBase> tasks = new ArrayList<>();
         List<EntityAIBase> targetTasks = new ArrayList<>();
 

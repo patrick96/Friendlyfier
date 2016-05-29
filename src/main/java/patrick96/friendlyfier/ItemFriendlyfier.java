@@ -34,7 +34,11 @@ public class ItemFriendlyfier extends Item {
                 player.swingItem();
             }
 
-            if(Utils.friendlyfy((EntityLiving) target)) {
+            int num = Utils.getNumFriendlyfied(player);
+            int limit = ConfigHandler.friendlyLimit.getInt();
+            if((limit == 0 || limit > num) && Utils.friendlyfy((EntityLiving) target)) {
+
+                target.getEntityData().setString("friendlyfiedPlayer", player.getPersistentID().toString());
 
                 IChatComponent msg = Utils.generateSuccessMessage(entity, player);
 
