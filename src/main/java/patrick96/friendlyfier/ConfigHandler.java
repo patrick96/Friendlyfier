@@ -4,6 +4,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
 import java.io.File;
+import java.util.Arrays;
 
 import static net.minecraftforge.common.config.Configuration.CATEGORY_GENERAL;
 
@@ -23,9 +24,10 @@ public class ConfigHandler {
                 + "\nNote: The mod only checks this limit against all the loaded entities in the world. So a player could still friendlyfy as many entities as he wants to, as long as he unloads the chunks they are in before trying to friendlyfy another"
                 + "\n(default: 0)";
 
-        blacklist = config.get(CATEGORY_GENERAL, "blacklist", new String[] {"WitherBoss", "EnderDragon", "Ghast"});
-        blacklist.comment = "A list of Mobs that should not be friendlyfied. The names to put here can be found on the Minecraft Wiki as 'Savegame ID'. "
-                + "(default: \"WitherBoss\", \"EnderDragon\", \"Ghast\")";
+        blacklist = config.get(CATEGORY_GENERAL, "blacklist", new String[] {"WitherBoss", "EnderDragon", "Ghast", "PigZombie", "Slime", "LavaSlime"});
+        blacklist.comment = "A list of Mobs that should not be friendlyfied. The names to put here can be found on the Minecraft Wiki as 'Savegame ID'. \n"
+                + "The default mobs listed here are also the ones that will not necessarily behave friendly even when friendlyfied.\n"
+                + "(default: " + Arrays.toString(blacklist.getDefaults()) + ")";
 
         useWhitelist = config.get(CATEGORY_GENERAL, "useWhitelist", false);
         useWhitelist.comment = "Set to true if the blacklist should be used as a whitelist (default: false)";
@@ -40,6 +42,8 @@ public class ConfigHandler {
         + "\n@h Health of the mob at the time of friendlyfication in half hearts"
         + "\n@f Health of the mob at the time of friendlyfication in full hearts"
         + "\n@u The amount of mobs this player has turned friendly"
+        + "\n@l The limit set for friendlyfied mobs per player"
+        + "\n@e @l - @u the amount of mobs a player can still friendlyfy"
         + "\n(default: @o (@n) has been friendlyfied by @p!)";
 
         dimensionalSuccessMessage = config.get(CATEGORY_GENERAL, "dimensionalSuccessMessage", false);

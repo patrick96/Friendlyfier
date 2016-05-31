@@ -102,6 +102,14 @@ public class Utils {
                             toAdd = new ChatComponentText("" + getNumFriendlyfied(player));
                         break;
 
+                    case 'l':
+                            toAdd = new ChatComponentText("" + ConfigHandler.friendlyLimit.getInt());
+                        break;
+
+                    case 'e':
+                            toAdd = new ChatComponentText("" + (ConfigHandler.friendlyLimit.getInt() - getNumFriendlyfied(player)));
+                        break;
+
                     default:
                         // If no variable is found print as normal
                         toAdd = new ChatComponentText("@" + configMsg.charAt(i + 1));
