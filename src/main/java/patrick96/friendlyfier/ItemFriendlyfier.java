@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
 
 import java.util.ArrayList;
@@ -36,36 +37,41 @@ public class ItemFriendlyfier extends Item {
 
             int num = Utils.getNumFriendlyfied(player);
             int limit = ConfigHandler.friendlyLimit.getInt();
-            if((limit == 0 || limit > num) && Utils.friendlyfy((EntityLiving) target)) {
+            if((limit == 0 || limit > num)) {
+                if(Utils.friendlyfy((EntityLiving) target)) {
 
-                target.getEntityData().setString("friendlyfiedPlayer", player.getPersistentID().toString());
+                    target.getEntityData().setString("friendlyfiedPlayer", player.getPersistentID().toString());
 
-                IChatComponent msg = Utils.generateSuccessMessage(entity, player);
+                    IChatComponent msg = Utils.generateSuccessMessage(entity, player);
 
-                List<EntityPlayer> players = new ArrayList<>();
+                    List<EntityPlayer> players = new ArrayList<>();
 
-                if(ConfigHandler.dimensionalSuccessMessage.getBoolean()) {
-                    players.addAll(player.worldObj.playerEntities);
-                }
-                else if(ConfigHandler.radiusSuccessMessage.getInt() > 0) {
-                    int radius = ConfigHandler.radiusSuccessMessage.getInt();
-                    players.addAll(player.worldObj.getEntitiesWithinAABB(EntityPlayer.class
-                            , AxisAlignedBB.getBoundingBox(player.posX, player.posY, player.posZ, player.posX, player.posY, player.posZ)
-                                    .expand(radius, radius, radius)));
-                }
-                else {
-                    players.add(player);
-                }
+                    if(ConfigHandler.dimensionalSuccessMessage.getBoolean()) {
+                        players.addAll(player.worldObj.playerEntities);
+                    }
+                    else if(ConfigHandler.radiusSuccessMessage.getInt() > 0) {
+                        int radius = ConfigHandler.radiusSuccessMessage.getInt();
+                        players.addAll(player.worldObj.getEntitiesWithinAABB(EntityPlayer.class
+                                , AxisAlignedBB.getBoundingBox(player.posX, player.posY, player.posZ, player.posX, player.posY, player.posZ)
+                                        .expand(radius, radius, radius)));
+                    }
+                    else {
+                        players.add(player);
+                    }
 
-                for(EntityPlayer pl : players) {
-                    if(pl != null) {
-                        pl.addChatComponentMessage(msg);
+                    for(EntityPlayer pl : players) {
+                        if(pl != null) {
+                            pl.addChatComponentMessage(msg);
+                        }
+                    }
+
+                    if(!player.capabilities.isCreativeMode) {
+                        stack.stackSize--;
                     }
                 }
-
-                if(!player.capabilities.isCreativeMode) {
-                    stack.stackSize--;
-                }
+            }
+            else {
+                player.addChatComponentMessage(new ChatComponentText("You have reached your limit of friendly mobs for this dimension."));
             }
         }
 

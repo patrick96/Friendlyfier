@@ -21,7 +21,7 @@ public class ConfigHandler {
 
         friendlyLimit = config.get(CATEGORY_GENERAL, "friendlyLimit", 0);
         friendlyLimit.comment = "Set a limit to how many mobs a player can make friendly. A value of zero means no limit"
-                + "\nNote: The mod only checks this limit against all the loaded entities in the world. So a player could still friendlyfy as many entities as he wants to, as long as he unloads the chunks they are in before trying to friendlyfy another"
+                + "\nNote: The mod only checks this limit against all the loaded entities in the current dimension. So a player could still friendlyfy as many entities as he wants to, as long as he unloads the chunks they are in before trying to friendlyfy another"
                 + "\n(default: 0)";
 
         blacklist = config.get(CATEGORY_GENERAL, "blacklist", new String[] {"WitherBoss", "EnderDragon", "Ghast", "PigZombie", "Slime", "LavaSlime"});
