@@ -241,4 +241,37 @@ public class Utils {
         return true;
     }
 
+    public static boolean canUnfriendlyfy(EntityLiving entity) {
+        return entity.getEntityData().getBoolean("friendlyfied");
+    }
+
+    public static boolean unfriendlyfy(EntityLiving entity) {
+        if(entity.worldObj.isRemote || !canUnfriendlyfy(entity)) {
+            return false;
+        }
+
+        entity.getEntityData().removeTag("friendlyfied");
+        entity.getEntityData().removeTag("friendlyfiedPlayer");
+        List<EntityAIBase> tasks = new ArrayList<>();
+        List<EntityAIBase> targetTasks = new ArrayList<>();
+
+        for(Object t : entity.tasks.taskEntries) {
+            tasks.add(((EntityAITasks.EntityAITaskEntry) t).action);
+        }
+
+        for(Object t : entity.targetTasks.taskEntries) {
+            targetTasks.add(((EntityAITasks.EntityAITaskEntry) t).action);
+        }
+
+        for(EntityAIBase b : tasks) {
+            entity.tasks.removeTask(b);
+        }
+
+        for(EntityAIBase b : targetTasks) {
+            entity.targetTasks.removeTask(b);
+        }
+
+        return true;
+    }
+
 }

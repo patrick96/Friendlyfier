@@ -10,7 +10,10 @@ import static net.minecraftforge.common.config.Configuration.CATEGORY_GENERAL;
 
 public class ConfigHandler {
 
-    public static Property defuseCreeper, friendlyLimit, useWhitelist, blacklist, invulnerable, persistence, successMessage, dimensionalSuccessMessage, radiusSuccessMessage;
+    public static Property defuseCreeper, friendlyLimit, useWhitelist, blacklist,
+            invulnerable, persistence,
+            successMessage, dimensionalSuccessMessage, radiusSuccessMessage,
+            unfriendlyfyAll, unfriendlyfyOp;
 
     public static void init(File file) {
         Configuration config = new Configuration(file, true);
@@ -59,6 +62,12 @@ public class ConfigHandler {
 
         persistence = config.get(CATEGORY_GENERAL, "persistence", true);
         persistence.comment = "If set to true friendlyfied mobs will not despawn if they are too far away (default: true)";
+
+        unfriendlyfyAll = config.get(CATEGORY_GENERAL, "unfriendlyfyAll", false);
+        unfriendlyfyAll.comment = "If set to true every player can unfriendlyfy every other players mobs (default: false)";
+
+        unfriendlyfyOp = config.get(CATEGORY_GENERAL, "unfriendlyfyOp", true);
+        unfriendlyfyOp.comment = "If set to true then all player that have op status can unfriendlyfy every friendlyfied mob (not only their own) (default: true)";
 
         config.save();
     }

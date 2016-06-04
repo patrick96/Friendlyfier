@@ -28,6 +28,7 @@ public class Friendlyfier
     public static CommonProxy proxy;
 
     public final static Item itemFriendlyfier = new ItemFriendlyfier();
+    public final static Item itemUnfriendlyfier = new ItemUnfriendlyfier();
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -37,9 +38,16 @@ public class Friendlyfier
 
         MinecraftForge.EVENT_BUS.register(this);
         GameRegistry.registerItem(itemFriendlyfier, "friendlyfier");
+        GameRegistry.registerItem(itemUnfriendlyfier, "unfriendlyfier");
 
         GameRegistry.addRecipe(new ItemStack(itemFriendlyfier, 2), " AB", " CA", "D  ",
                 'A', Items.gold_nugget,
+                'B', Items.lead,
+                'C', Items.stick,
+                'D', Items.bone);
+
+        GameRegistry.addRecipe(new ItemStack(itemUnfriendlyfier, 2), " AB", " CA", "D  ",
+                'A', Items.redstone,
                 'B', Items.lead,
                 'C', Items.stick,
                 'D', Items.bone);
