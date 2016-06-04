@@ -27,7 +27,7 @@ configFile.withReader {
 
 ext.mc_version = "1.7.10"
 ext.forge_version = "10.13.4.1614-1.7.10"
-version = "0.1.1" + "." + config.build
+version = "1.0.0" + "." + config.build
 group= "patrick96.friendlyfier" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "friendlyfier-" + mc_version
 
